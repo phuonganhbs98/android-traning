@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/signup"
+        android:title="登録" />
+    <item
+        android:id="@+id/statistic"
+        android:title="集計" />
+    <item
+        android:id="@+id/profile"
+        android:title="プロフィール" />
+</menu>
