@@ -1,7 +1,10 @@
 package com.atom.traningandroid.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.widget.Toast;
+
+import com.atom.traningandroid.activity.MainActivity;
 
 import java.io.IOException;
 
@@ -21,6 +24,10 @@ public class AppUtils {
     public static void noticeMessage(Context c, String msg){
         Toast.makeText(c, msg, Toast.LENGTH_LONG).show();
     }
+
+
+
+
 
 
 }

@@ -2,11 +2,8 @@ package com.atom.traningandroid.activity;
 
 import static com.atom.traningandroid.R.color.design_default_color_error;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -21,7 +18,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends BaseActivity {
 
     private final String LOG_TAG = "Detail Activity";
     private TextView userId;
@@ -40,7 +37,9 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+        checkLogin();
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent intent = getIntent();
         this.user = (User) intent.getSerializableExtra("user");
 
@@ -55,9 +54,9 @@ public class DetailActivity extends AppCompatActivity {
         lock = (Button) findViewById(R.id.lockButton);
 
         if (this.user == null) {
-            getProfile();
+            this.getProfile();
         }else{
-            this.setInforOfUser();
+            this.getByUserId();
         }
 
         this.edit.setOnClickListener(new View.OnClickListener() {
@@ -96,7 +95,7 @@ public class DetailActivity extends AppCompatActivity {
         System.out.println(">>>>edit ...."+user.toString());
         if(user.getEnabled()!=null && user.getEnabled()==0){
             state.setText("ロック");
-            state.setTextColor(getResources().getColor(design_default_color_error));
+            state.setTextColor(getResources().getColor(R.color.red));
         }else {
             state.setText("アクティブ");
             state.setTextColor(getResources().getColor(R.color.green));
@@ -135,7 +134,7 @@ public class DetailActivity extends AppCompatActivity {
                         if (response.code() == 200) {
                             user = response.body();
                             setInforOfUser();
-                        } else {
+                        } else{
                             AppUtils.noticeMessage(DetailActivity.this, AppUtils.getErrorString(response));
                         }
                     }

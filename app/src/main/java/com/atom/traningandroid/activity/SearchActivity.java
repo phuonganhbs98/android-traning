@@ -1,8 +1,5 @@
 package com.atom.traningandroid.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,15 +14,8 @@ import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.Spinner;
 
-import com.android.volley.Request;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.atom.traningandroid.adapter.CustomListAdapter;
 import com.atom.traningandroid.R;
-import com.atom.traningandroid.RequestSingleton;
-import com.atom.traningandroid.constant.Constant;
-import com.atom.traningandroid.converter.RoleConverter;
-import com.atom.traningandroid.converter.UserConverter;
 import com.atom.traningandroid.model.Role;
 import com.atom.traningandroid.model.RoleList;
 import com.atom.traningandroid.model.User;
@@ -35,10 +25,6 @@ import com.atom.traningandroid.utils.AppUtils;
 import com.atom.traningandroid.utils.TokenUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +32,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends BaseActivity {
 
     private final String LOG_TAG = "Search Activity";
     private ListView userList;
@@ -59,6 +45,9 @@ public class SearchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+        checkLogin();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         this.userList = (ListView) findViewById(R.id.userList);
         this.roleSpinner = (Spinner) findViewById(R.id.roleSpinner);
         this.nameSearch = (SearchView) findViewById(R.id.searchByName);
@@ -85,6 +74,17 @@ public class SearchActivity extends AppCompatActivity {
                 menuBtnClicked();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        String preAct = getIntent().getStringExtra("activity");
+        System.out.println("preact: " + preAct);
+        if(preAct!=null && preAct.equals("login") && TokenUtils.getInstance().getToken()!=null) {
+            finishAffinity();
+        }else {
+            super.onBackPressed();
+        }
     }
 
     private void menuBtnClicked() {

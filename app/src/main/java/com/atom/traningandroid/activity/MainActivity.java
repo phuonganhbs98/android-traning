@@ -8,27 +8,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.atom.traningandroid.R;
-import com.atom.traningandroid.RequestSingleton;
-import com.atom.traningandroid.api.APIServiceImpl;
-import com.atom.traningandroid.constant.Constant;
-import com.atom.traningandroid.converter.UserConverter;
 import com.atom.traningandroid.model.User;
 import com.atom.traningandroid.retrofit.RetrofitProvider;
 import com.atom.traningandroid.utils.AppUtils;
 import com.atom.traningandroid.utils.TokenUtils;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -45,6 +30,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if(TokenUtils.getInstance().getToken()!= null){
+            Intent intent = new Intent(this, SearchActivity.class);
+            startActivity(intent);
+        }
+
         userId = findViewById(R.id.userId);
         password = findViewById(R.id.password);
         loginButton = findViewById(R.id.loginBtn);
@@ -60,6 +50,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(TokenUtils.getInstance().getToken()!= null){
+            Intent intent = new Intent(this, SearchActivity.class);
+            startActivity(intent);
+        }
     }
 
     public void login(User u) {
@@ -79,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
                         TokenUtils.getInstance().setToken(token);
                         AppUtils.noticeMessage(MainActivity.this, "ログインに成功しました");
                         Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+                        intent.putExtra("activity", "login");
                         startActivity(intent);
                     }
 

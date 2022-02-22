@@ -1,34 +1,23 @@
 package com.atom.traningandroid.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.atom.traningandroid.R;
-import com.atom.traningandroid.RequestSingleton;
+
 import com.atom.traningandroid.constant.Constant;
 import com.atom.traningandroid.model.User;
 import com.atom.traningandroid.retrofit.RetrofitProvider;
 import com.atom.traningandroid.utils.AppUtils;
 import com.atom.traningandroid.utils.TokenUtils;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 
-public class DeleteConfirmActivity extends AppCompatActivity {
+public class DeleteConfirmActivity extends BaseActivity {
 
     private final String LOG_TAG = "Delete Confirm Activity";
     private final String deleteUrl = Constant.BASE_URL + "/users";
@@ -41,7 +30,9 @@ public class DeleteConfirmActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_delete_confirm);
+        checkLogin();
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent intent = getIntent();
         User user = (User) intent.getSerializableExtra("user");
         Log.d(LOG_TAG, user.toString());

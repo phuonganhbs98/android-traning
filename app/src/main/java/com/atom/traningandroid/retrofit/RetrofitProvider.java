@@ -1,6 +1,7 @@
 package com.atom.traningandroid.retrofit;
 
 import com.atom.traningandroid.api.APIService;
+import com.atom.traningandroid.constant.Constant;
 import com.google.gson.GsonBuilder;
 
 import okhttp3.OkHttpClient;
@@ -13,7 +14,7 @@ public final class RetrofitProvider {
 
     private RetrofitProvider() {
         retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.0.5:8080/")
+                .baseUrl(Constant.BASE_URL)
                 .client(new OkHttpClient.Builder().build())
                 .addConverterFactory(GsonConverterFactory.create(new GsonBuilder().setLenient().create()))
                 .build();

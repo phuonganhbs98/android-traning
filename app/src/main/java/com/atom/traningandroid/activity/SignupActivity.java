@@ -1,9 +1,7 @@
 package com.atom.traningandroid.activity;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,16 +15,8 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.atom.traningandroid.R;
-import com.atom.traningandroid.RequestSingleton;
-import com.atom.traningandroid.constant.Constant;
-import com.atom.traningandroid.converter.GenderConverter;
-import com.atom.traningandroid.converter.RoleConverter;
 import com.atom.traningandroid.model.Gender;
 import com.atom.traningandroid.model.GenderList;
 import com.atom.traningandroid.model.Role;
@@ -36,19 +26,13 @@ import com.atom.traningandroid.retrofit.RetrofitProvider;
 import com.atom.traningandroid.utils.AppUtils;
 import com.atom.traningandroid.utils.TokenUtils;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Response;
 
-public class SignupActivity extends AppCompatActivity {
+public class SignupActivity extends BaseActivity {
 
     private final String LOG_TAG = "Signup Activity";
     private EditText userId;
@@ -61,7 +45,6 @@ public class SignupActivity extends AppCompatActivity {
     private TextView errorMsg;
     private CheckBox admin;
     private Button signupBtn;
-    private Button back;
     private Integer genderId;
     private Integer authorityId;
     private Integer isAdmin = 0;
@@ -73,6 +56,7 @@ public class SignupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+        checkLogin();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ActionBar actionBar = getSupportActionBar();
@@ -87,7 +71,6 @@ public class SignupActivity extends AppCompatActivity {
         role = (Spinner) findViewById(R.id.su_role_spinner);
         admin = (CheckBox) findViewById(R.id.su_admin);
         signupBtn = (Button) findViewById(R.id.su_btn);
-        back = (Button) findViewById(R.id.home);
 
         this.admin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -118,9 +101,10 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
 
-//        this.back.setOn
 
     }
+
+
 
     public void prepareData(User u) {
         this.userId.setText(u.getUserId());
