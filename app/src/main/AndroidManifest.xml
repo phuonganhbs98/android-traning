@@ -15,15 +15,19 @@
         android:theme="@style/Theme.TraningAndroid">
         <activity
             android:name=".activity.StatisticActivity"
+            android:label="@string/title_statistic"
             android:exported="false" />
         <activity
             android:name=".activity.DeleteConfirmActivity"
+            android:label="@string/title_delete_confirm"
             android:exported="false" />
         <activity
             android:name=".activity.SignupActivity"
+            android:label="@string/title_activity_signup"
             android:exported="false" />
         <activity
             android:name=".activity.DetailActivity"
+            android:label="@string/title_detail"
             android:exported="false" />
 
         <meta-data
@@ -32,6 +36,7 @@
 
         <activity
             android:name=".activity.SearchActivity"
+            android:label="@string/title_search"
             android:exported="false" />
         <activity
             android:name=".activity.MainActivity"

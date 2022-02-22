@@ -1,6 +1,6 @@
 package com.atom.traningandroid.converter;
 
-import com.atom.traningandroid.entity.Gender;
+import com.atom.traningandroid.model.Gender;
 
 import org.json.JSONException;
 import org.json.JSONObject;

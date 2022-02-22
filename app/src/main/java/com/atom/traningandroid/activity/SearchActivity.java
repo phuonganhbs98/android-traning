@@ -18,7 +18,6 @@ import android.widget.SearchView;
 import android.widget.Spinner;
 
 import com.android.volley.Request;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.atom.traningandroid.adapter.CustomListAdapter;
@@ -27,8 +26,13 @@ import com.atom.traningandroid.RequestSingleton;
 import com.atom.traningandroid.constant.Constant;
 import com.atom.traningandroid.converter.RoleConverter;
 import com.atom.traningandroid.converter.UserConverter;
-import com.atom.traningandroid.entity.Role;
-import com.atom.traningandroid.entity.User;
+import com.atom.traningandroid.model.Role;
+import com.atom.traningandroid.model.RoleList;
+import com.atom.traningandroid.model.User;
+import com.atom.traningandroid.model.UserList;
+import com.atom.traningandroid.retrofit.RetrofitProvider;
+import com.atom.traningandroid.utils.AppUtils;
+import com.atom.traningandroid.utils.TokenUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
@@ -38,15 +42,18 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class SearchActivity extends AppCompatActivity {
 
-    private final String searchUrl = Constant.API + "/users/search";
     private final String LOG_TAG = "Search Activity";
     private ListView userList;
     private Spinner roleSpinner;
     private SearchView nameSearch;
     private FloatingActionButton menuBtn;
-    private Role searchRole = null;
+    private Role searchRole = new Role();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,28 +63,17 @@ public class SearchActivity extends AppCompatActivity {
         this.roleSpinner = (Spinner) findViewById(R.id.roleSpinner);
         this.nameSearch = (SearchView) findViewById(R.id.searchByName);
         this.menuBtn = (FloatingActionButton) findViewById(R.id.menu1);
-        JSONObject jsonObj;
-        try {
-            jsonObj = new JSONObject();
-            jsonObj.put("familyName", "");
-            jsonObj.put("firstName", "");
-            jsonObj.put("authorityId", null);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        this.search(searchUrl, jsonObj, this);
-        this.getRoles(Constant.API + "/roles", this);
-
+        this.getRoles();
+        this.search();
         this.nameSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                onSearch();
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                onSearch();
+                search();
                 return true;
             }
         });
@@ -116,10 +112,8 @@ public class SearchActivity extends AppCompatActivity {
         popup.inflate(R.menu.user_action_menu);
 
         Menu menu = popup.getMenu();
-        // com.android.internal.view.menu.MenuBuilder
         Log.i(LOG_TAG, "Menu class: " + menu.getClass().getName());
 
-        // Register Menu Item Click event.
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -160,111 +154,83 @@ public class SearchActivity extends AppCompatActivity {
         return true;
     }
 
-    public void getRoles(String url, Context c) {
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
+    public void getRoles() {
+        List<Role> roles = new ArrayList<>();
+        roles.add(new Role(null, "役職・すべて"));
+        RetrofitProvider.callAPI().findAllRoles(TokenUtils.getInstance().getToken())
+                .enqueue(new Callback<RoleList>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        List<Role> roles = new ArrayList<>();
-                        roles.add(new Role(null, "役職・すべて"));
-                        JSONArray arr;
-                        try {
-                            if (response.has("role")) {
-                                arr = response.getJSONArray("role");
-                                roles.addAll(RoleConverter.convertToRoleList(arr));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                    public void onResponse(Call<RoleList> call, Response<RoleList> response) {
+                        if (response.code() == 200) {
+                            roles.addAll(response.body().getRoles());
+                            ArrayAdapter<Role> adapter = new ArrayAdapter<Role>(SearchActivity.this,
+                                    android.R.layout.simple_spinner_item,
+                                    roles);
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            roleSpinner.setAdapter(adapter);
+                            roleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                @Override
+                                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                    onItemSelectedHandler(parent, view, position, id);
+                                }
+
+                                @Override
+                                public void onNothingSelected(AdapterView<?> parent) {
+
+                                }
+                            });
+                        } else {
+                            AppUtils.noticeMessage(SearchActivity.this, AppUtils.getErrorString(response));
                         }
-                        ArrayAdapter<Role> adapter = new ArrayAdapter<Role>(c,
-                                android.R.layout.simple_spinner_item,
-                                roles);
-                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-                        roleSpinner.setAdapter(adapter);
-                        roleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-                            @Override
-                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                onItemSelectedHandler(parent, view, position, id);
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> parent) {
-
-                            }
-                        });
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-//                textView.setText("That didn't work!" + error);
-                System.out.println("........pa: " + "That didn't work!" + error);
-            }
-        });
-        // Add the request to the RequestQueue.
-        RequestSingleton.getInstance(this).addToRequestQueue(stringRequest);
+
+                    @Override
+                    public void onFailure(Call<RoleList> call, Throwable t) {
+                        t.printStackTrace();
+                        AppUtils.noticeMessage(SearchActivity.this, t.getMessage());
+                    }
+                });
     }
 
-    public void search(String url, JSONObject objRequest, Context c) {
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, url, objRequest,
-                new Response.Listener<JSONObject>() {
+    public void search() {
+        User u = new User(this.nameSearch.getQuery().toString(), this.searchRole.getAuthorityId());
+        RetrofitProvider.callAPI().search(TokenUtils.getInstance().getToken(), u)
+                .enqueue(new Callback<UserList>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        List<User> users = new ArrayList<>();
-                        JSONArray arr;
-                        try {
-                            if (response.has("user")) {
-                                if (response.optJSONArray("user") != null) {
-                                    arr = response.getJSONArray("user");
-                                    users = UserConverter.convertToUserList(arr);
-                                } else {
-                                    users.add(UserConverter.convertToUser(response.getJSONObject("user")));
+                    public void onResponse(Call<UserList> call, retrofit2.Response<UserList> response) {
+                        if (response.code() == 200) {
+                            if(response.body()==null){
+                                userList.setAdapter(new CustomListAdapter(SearchActivity.this, new ArrayList<User>()));
+                                return;
+                            }
+                            List<User> users = response.body().getUsers();
+                            userList.setAdapter(new CustomListAdapter(SearchActivity.this, users));
+                            userList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                                @Override
+                                public void onItemClick(AdapterView<?> a, View v, int position, long id) {
+                                    Object o = userList.getItemAtPosition(position);
+                                    User u = (User) o;
+                                    userClicked(v, u);
                                 }
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                            });
                         }
-
-                        userList.setAdapter(new CustomListAdapter(c, users));
-                        userList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-                            @Override
-                            public void onItemClick(AdapterView<?> a, View v, int position, long id) {
-                                Object o = userList.getItemAtPosition(position);
-                                User u = (User) o;
-                                userClicked(v, u);
-                            }
-                        });
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-//                textView.setText("That didn't work!" + error);
-                System.out.println("........pa: " + "That didn't work!" + error);
-                userList.setAdapter(new CustomListAdapter(c, new ArrayList<User>()));
-            }
-        });
-        // Add the request to the RequestQueue.
-        RequestSingleton.getInstance(this).addToRequestQueue(stringRequest);
+
+                    @Override
+                    public void onFailure(Call<UserList> call, Throwable t) {
+                        t.printStackTrace();
+//                        AppUtils.noticeMessage(SearchActivity.this, t.getMessage());
+                        userList.setAdapter(new CustomListAdapter(SearchActivity.this, new ArrayList<User>()));
+                    }
+                });
+
     }
 
     private void onItemSelectedHandler(AdapterView<?> adapterView, View view, int position, long id) {
         Adapter adapter = adapterView.getAdapter();
         this.searchRole = (Role) adapter.getItem(position);
-        this.onSearch();
+        this.search();
     }
 
-    private void onSearch() {
-        JSONObject jsonObj;
-        try {
-            jsonObj = new JSONObject();
-            jsonObj.put("familyName", nameSearch.getQuery());
-            jsonObj.put("firstName", nameSearch.getQuery());
-            jsonObj.put("authorityId", this.searchRole == null ? null : this.searchRole.getAuthorityId());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        this.search(searchUrl, jsonObj, this);
-    }
 }

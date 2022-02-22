@@ -8,7 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.atom.traningandroid.R;
-import com.atom.traningandroid.entity.User;
+import com.atom.traningandroid.model.User;
 
 import java.util.List;
 
@@ -54,8 +54,8 @@ public class CustomListAdapter extends BaseAdapter {
 
         User u = this.listData.get(i);
         holder.name.setText(u.getFamilyName() + " " + u.getFirstName());
-        holder.gender.setText(u.getGenderName());
-        holder.role.setText((u.getAdmin()==1?"★":"")+u.getRoleName());
+        holder.gender.setText(u.getGenderName()==null?"":u.getGenderName());
+        holder.role.setText((u.getAdmin()==1?"★":"")+(u.getRoleName()==null?"":u.getRoleName()));
 
         return convertView;
     }

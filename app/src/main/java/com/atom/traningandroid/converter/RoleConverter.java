@@ -1,6 +1,6 @@
 package com.atom.traningandroid.converter;
 
-import com.atom.traningandroid.entity.Role;
+import com.atom.traningandroid.model.Role;
 
 import org.json.JSONArray;
 import org.json.JSONException;

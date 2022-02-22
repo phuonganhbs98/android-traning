@@ -17,15 +17,21 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.atom.traningandroid.R;
 import com.atom.traningandroid.RequestSingleton;
 import com.atom.traningandroid.constant.Constant;
-import com.atom.traningandroid.entity.User;
+import com.atom.traningandroid.model.User;
+import com.atom.traningandroid.retrofit.RetrofitProvider;
+import com.atom.traningandroid.utils.AppUtils;
+import com.atom.traningandroid.utils.TokenUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+
 public class DeleteConfirmActivity extends AppCompatActivity {
 
     private final String LOG_TAG = "Delete Confirm Activity";
-    private final String deleteUrl = Constant.API + "/users";
+    private final String deleteUrl = Constant.BASE_URL + "/users";
     private TextView name;
     private TextView userId;
     private Button deleteButton;
@@ -42,12 +48,12 @@ public class DeleteConfirmActivity extends AppCompatActivity {
 
         this.name = (TextView) findViewById(R.id.d_name);
         this.userId = (TextView) findViewById(R.id.d_userId);
-        this.name.setText(user.getFamilyName()+" " + user.getFirstName());
+        this.name.setText(user.getFamilyName() + " " + user.getFirstName());
         this.userId.setText(user.getUserId());
-        this.errorMsg= (TextView) findViewById(R.id.d_errMsg);
+        this.errorMsg = (TextView) findViewById(R.id.d_errMsg);
         this.deleteButton = (Button) findViewById(R.id.d_button);
 
-        this.deleteButton.setOnClickListener(new View.OnClickListener(){
+        this.deleteButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
@@ -57,38 +63,25 @@ public class DeleteConfirmActivity extends AppCompatActivity {
 
     }
 
-    private void delete(){
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.DELETE, deleteUrl+"/"+this.userId.getText(), null,
-                new Response.Listener<JSONObject>() {
+    private void delete() {
+        RetrofitProvider.callAPI().deleteUser(TokenUtils.getInstance().getToken(), this.userId.getText().toString())
+                .enqueue(new Callback<User>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        Intent intent = new Intent(DeleteConfirmActivity.this, SearchActivity.class);
-
-                        if (response.optString("message") != null) {
-                            String message = null;
-                            try {
-                                message = response.getString("message");
-                                errorMsg.setText("※" + message);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                errorMsg.setText("");
-                                Toast.makeText(DeleteConfirmActivity.this, "削除完了しました", Toast.LENGTH_LONG).show();
-                                startActivity(intent);
-                            }
-                        } else {
-                            errorMsg.setText("");
-                            Toast.makeText(DeleteConfirmActivity.this, "削除完了しました", Toast.LENGTH_LONG).show();
+                    public void onResponse(Call<User> call, retrofit2.Response<User> response) {
+                        if (response.code() == 200) {
+                            AppUtils.noticeMessage(DeleteConfirmActivity.this, "削除完了しました");
+                            Intent intent = new Intent(DeleteConfirmActivity.this, SearchActivity.class);
                             startActivity(intent);
+                        } else {
+                            AppUtils.noticeMessage(DeleteConfirmActivity.this, AppUtils.getErrorString(response));
                         }
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-//                textView.setText("That didn't work!" + error);
-                Log.d(LOG_TAG, error.getMessage());
-            }
-        });
-        // Add the request to the RequestQueue.
-        RequestSingleton.getInstance(this).addToRequestQueue(stringRequest);
+
+                    @Override
+                    public void onFailure(Call<User> call, Throwable t) {
+                        t.printStackTrace();
+                        AppUtils.noticeMessage(DeleteConfirmActivity.this, t.getMessage());
+                    }
+                });
     }
 }

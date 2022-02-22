@@ -16,15 +16,22 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.atom.traningandroid.R;
 import com.atom.traningandroid.RequestSingleton;
+import com.atom.traningandroid.api.APIServiceImpl;
 import com.atom.traningandroid.constant.Constant;
 import com.atom.traningandroid.converter.UserConverter;
-import com.atom.traningandroid.entity.User;
+import com.atom.traningandroid.model.User;
+import com.atom.traningandroid.retrofit.RetrofitProvider;
+import com.atom.traningandroid.utils.AppUtils;
+import com.atom.traningandroid.utils.TokenUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,106 +51,43 @@ public class MainActivity extends AppCompatActivity {
         message = findViewById(R.id.message);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
-            JsonObjectRequest jsonObjectRequest;
             @Override
             public void onClick(View v) {
-//                if (userId.getText().length() > 0 && password.getText().length() > 0) {
-//                    String toastMessage = "※ ログインに失敗しました";
-//                    Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
-//                } else {
-//                    String toastMessage = "※ ログインに成功しました";
-//                    Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
-//                }
-                String url = Constant.API+"/users/login";
-                JSONObject jsonObj;
-                try {
-                    jsonObj = new JSONObject();
-                    jsonObj.put("userId", userId.getText());
-                    jsonObj.put("password", password.getText());
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                System.out.println(jsonObj.toString());
-                login(url, jsonObj);
-
+                User u = new User();
+                u.setUserId(userId.getText().toString());
+                u.setPassword(password.getText().toString());
+                login(u);
             }
         });
 
     }
 
-    public void login (String url, JSONObject objRequest){
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, url,objRequest,
-                new Response.Listener<JSONObject>() {
+    public void login(User u) {
+        RetrofitProvider.callAPI().login(u)
+                .enqueue(new Callback<String>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        // Display the first 500 characters of the response string.
-//                        textView.setText("Response is: "+ response.substring(0,500));
-                        String toastMessage = null;
-                        try {
-                            toastMessage = response.getString("message");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                    public void onResponse(Call<String> call, retrofit2.Response<String> response) {
+                        String token = response.body();
+                        System.out.println(call.request().toString());
+                        if (response.code() != 200) {
+                            System.out.println("code: " + response.code());
+                            String err = AppUtils.getErrorString(response);
+                            message.setText(err);
+                            return;
                         }
-                        if(toastMessage != null){
-//                            Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
-                            message.setText(toastMessage);
-                        }else{
-                            toastMessage = "success";
-                            Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-                            startActivity(intent);
-                        }
-                        System.out.println(">>>bbbbb: " + response.toString());
+                        System.out.println("------" + u.toString());
+                        TokenUtils.getInstance().setToken(token);
+                        AppUtils.noticeMessage(MainActivity.this, "ログインに成功しました");
+                        Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+                        startActivity(intent);
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-//                textView.setText("That didn't work!" + error);
-                System.out.println("........pa: " + "That didn't work!" + error);
-            }
-        });
 
-        // Add the request to the RequestQueue.
-        RequestSingleton.getInstance(this).addToRequestQueue(stringRequest);
-    }
-
-    public JSONObject connectURL(String url) {
-        // Request a string response from the provided URL.
-        final List<JSONObject> result=  new ArrayList<>();
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, url,null,
-                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        // Display the first 500 characters of the response string.
-//                        textView.setText("Response is: "+ response.substring(0,500));
-                        if(response != null){
-                            System.out.println(">>>>> aaaaaaaaaaaaaaaaaaaa");
-                            User u = UserConverter.convertToUser(response);
-                            System.out.println(">>>>>User: ....");
-                            System.out.println(u.toString());
-                        }
-                        System.out.println(">>>bbbbb: " + response.toString());
-//                        try {
-//                            System.out.println(">>>>>total count: " + response.getString("total_count"));
-//                            System.out.println(">>>>>incomplete_results: " + response.getString("incomplete_results"));
-//                            System.out.println(">>>>>login: " + response.getJSONArray("items").getJSONObject(0).getString("login"));
-//                            System.out.println(">>>>>url: " + response.getJSONArray("items").getJSONObject(0).getString("url"));
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-                        result.add(response);
+                    public void onFailure(Call<String> call, Throwable t) {
+                        t.printStackTrace();
+                        message.setText(t.getMessage());
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-//                textView.setText("That didn't work!" + error);
-                System.out.println("........pa: " + "That didn't work!" + error);
-            }
-        });
-
-        // Add the request to the RequestQueue.
-        RequestSingleton.getInstance(this).addToRequestQueue(stringRequest);
-        System.out.println(">>>bbbbb2222: " + result.toString());
-        return result.size()>0?result.get(0):null;
+                });
     }
+
 }

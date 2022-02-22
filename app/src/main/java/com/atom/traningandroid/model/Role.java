@@ -1,7 +1,12 @@
-package com.atom.traningandroid.entity;
+package com.atom.traningandroid.model;
 
-public class Role {
+import com.google.gson.annotations.SerializedName;
+
+public final class Role {
+    @SerializedName("authorityId")
     private Integer authorityId;
+
+    @SerializedName("authorityName")
     private String roleName;
 
     public Role() {

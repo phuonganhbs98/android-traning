@@ -10,15 +10,13 @@
     <TableLayout
         android:id="@+id/tableLayout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="55dp"
-        android:layout_marginTop="50dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="40dp"
         android:layout_marginEnd="40dp"
-        android:layout_marginBottom="24dp"
+        android:gravity="center_vertical"
         android:shrinkColumns="1"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -44,21 +42,19 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="TextView"
                 android:textStyle="bold" />
 
             <Button
                 android:id="@+id/lockButton"
-                android:layout_width="42dp"
-                android:layout_height="45dp"
+                android:layout_width="43dp"
+                android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:background="#EF67B1"
-                android:backgroundTint="#EF67B1"
                 android:ellipsize="none"
                 android:gravity="center"
                 android:padding="8dp"
-                app:icon="@android:drawable/ic_lock_idle_lock"
-                app:iconSize="20dp" />
+                app:icon="@drawable/ic_lock"
+                app:iconGravity="textStart"
+                app:iconSize="45px" />
         </TableRow>
 
         <TableRow
@@ -82,7 +78,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="TextView"
                 android:textStyle="bold" />
 
             <Space
@@ -110,8 +105,7 @@
                 android:id="@+id/detail_gender"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="TextView" />
+                android:layout_weight="1" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -138,8 +132,7 @@
                 android:id="@+id/detail_age"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="TextView" />
+                android:layout_weight="1" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -166,8 +159,7 @@
                 android:id="@+id/detail_role"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="TextView" />
+                android:layout_weight="1" />
 
             <Space
                 android:layout_width="wrap_content"
@@ -195,46 +187,42 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="TextView"
-                android:textColor="#4CAF50" />
+                android:textStyle="bold" />
 
             <Space
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="30dp">
+
+            <Button
+                android:id="@+id/dt_edit_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="更新"
+                android:textSize="16sp" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/dt_delete_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/button_color"
+                android:text="削除"
+                android:theme="@style/Text_System" />
         </TableRow>
 
     </TableLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="480dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginBottom="-550dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/tableLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <Button
-            android:id="@+id/dt_edit_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="更新" />
-
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/dt_delete_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="削除" />
-    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

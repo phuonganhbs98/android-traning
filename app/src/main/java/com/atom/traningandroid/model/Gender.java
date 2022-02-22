@@ -1,7 +1,12 @@
-package com.atom.traningandroid.entity;
+package com.atom.traningandroid.model;
 
-public class Gender {
+import com.google.gson.annotations.SerializedName;
+
+public final class Gender {
+    @SerializedName("genderId")
     private Integer genderId;
+
+    @SerializedName("genderName")
     private String genderName;
 
     public Gender() {

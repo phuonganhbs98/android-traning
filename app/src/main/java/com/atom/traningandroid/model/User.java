@@ -1,20 +1,48 @@
-package com.atom.traningandroid.entity;
+package com.atom.traningandroid.model;
+
+import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-public class User implements Serializable {
+public final class User implements Serializable {
+    @SerializedName("userId")
     private String userId;
+    @SerializedName("password")
     private String password;
+    @SerializedName("familyName")
     private String familyName;
+    @SerializedName("firstName")
     private String firstName;
+    @SerializedName("genderId")
     private Integer genderId;
+    @SerializedName("genderName")
     private String genderName;
+    @SerializedName("age")
     private Integer age;
+    @SerializedName("authorityId")
     private Integer authorityId;
+    @SerializedName("roleName")
     private String roleName;
+    @SerializedName("admin")
     private Integer admin;
+    @SerializedName("enabled")
+    private Integer enabled;
 
     public User() {
+    }
+
+    public User(String name, Integer authorityId) {
+        this.familyName = name;
+        this.firstName = name;
+        this.authorityId = authorityId;
+    }
+
+    public Integer getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Integer enabled) {
+        this.enabled = enabled;
     }
 
     public String getUserId() {
@@ -110,6 +138,7 @@ public class User implements Serializable {
                 ", authorityId=" + authorityId +
                 ", roleName='" + roleName + '\'' +
                 ", admin=" + admin +
+                ", enabled=" + enabled +
                 '}';
     }
 }

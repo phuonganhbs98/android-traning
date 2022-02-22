@@ -1,21 +1,33 @@
-package com.atom.traningandroid.entity;
+package com.atom.traningandroid.model;
 
-public class Statistic {
+import com.google.gson.annotations.SerializedName;
+
+public final class Statistic {
+    @SerializedName("authorityId")
     private String authorityId;
+    @SerializedName("authorityName")
     private String authorityName;
+    @SerializedName("genderId")
     private String genderId;
+    @SerializedName("genderName")
     private String genderName;
+    @SerializedName("totalFemale")
     private String totalFemale;
+    @SerializedName("totalMale")
     private String totalMale;
+    @SerializedName("totalUnknown")
     private String totalUnknown;
+    @SerializedName("totalAgeSmaller19")
     private String totalAgeSmaller19;
+    @SerializedName("totalAgeGreater20")
     private String totalAgeGreater20;
+    @SerializedName("totalUnknownAge")
     private String totalUnknownAge;
 
     public Statistic() {
     }
 
-    public Statistic(Integer authorityId, String authorityName,String totalFemale, String totalMale, String totalUnknown) {
+    public Statistic(Integer authorityId, String authorityName, String totalFemale, String totalMale, String totalUnknown) {
         this.authorityName = authorityName;
         this.totalFemale = totalFemale;
         this.totalMale = totalMale;
