@@ -70,8 +70,12 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println(call.request().toString());
                         if (response.code() != 200) {
                             System.out.println("code: " + response.code());
-                            String err = AppUtils.getErrorString(response);
-                            message.setText(err);
+                            if(response.code()==500){
+                                message.setText(AppUtils.getUnknownErrorString());
+                            }else{
+                                String err = AppUtils.getErrorString(response);
+                                message.setText(err);
+                            }
                             return;
                         }
                         System.out.println("------" + u.toString());
@@ -85,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call<String> call, Throwable t) {
                         t.printStackTrace();
-                        message.setText(t.getMessage());
+                        message.setText(AppUtils.getUnknownErrorString());
                     }
                 });
     }

@@ -25,8 +25,10 @@ import com.atom.traningandroid.utils.AppUtils;
 import com.atom.traningandroid.utils.TokenUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -80,9 +82,9 @@ public class SearchActivity extends BaseActivity {
     public void onBackPressed() {
         String preAct = getIntent().getStringExtra("activity");
         System.out.println("preact: " + preAct);
-        if(preAct!=null && preAct.equals("login") && TokenUtils.getInstance().getToken()!=null) {
+        if (preAct != null && preAct.equals("login") && TokenUtils.getInstance().getToken() != null) {
             finishAffinity();
-        }else {
+        } else {
             super.onBackPressed();
         }
     }
@@ -92,10 +94,8 @@ public class SearchActivity extends BaseActivity {
         popup.inflate(R.menu.popup_menu_layout);
 
         Menu menu = popup.getMenu();
-        // com.android.internal.view.menu.MenuBuilder
         Log.i(LOG_TAG, "Menu class: " + menu.getClass().getName());
 
-        // Register Menu Item Click event.
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -179,15 +179,17 @@ public class SearchActivity extends BaseActivity {
 
                                 }
                             });
-                        } else {
+                        } else if(response.code()!=500){
                             AppUtils.noticeMessage(SearchActivity.this, AppUtils.getErrorString(response));
+                        }else {
+                            AppUtils.noticeMessage(SearchActivity.this, AppUtils.getUnknownErrorString());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<RoleList> call, Throwable t) {
                         t.printStackTrace();
-                        AppUtils.noticeMessage(SearchActivity.this, t.getMessage());
+                        AppUtils.noticeMessage(SearchActivity.this, AppUtils.getUnknownErrorString());
                     }
                 });
     }
@@ -199,11 +201,12 @@ public class SearchActivity extends BaseActivity {
                     @Override
                     public void onResponse(Call<UserList> call, retrofit2.Response<UserList> response) {
                         if (response.code() == 200) {
-                            if(response.body()==null){
+                            if (response.body() == null) {
                                 userList.setAdapter(new CustomListAdapter(SearchActivity.this, new ArrayList<User>()));
                                 return;
                             }
                             List<User> users = response.body().getUsers();
+                            users = removeNullUser(users);
                             userList.setAdapter(new CustomListAdapter(SearchActivity.this, users));
                             userList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -214,6 +217,10 @@ public class SearchActivity extends BaseActivity {
                                     userClicked(v, u);
                                 }
                             });
+                        }else if(response.code()==500){
+                            AppUtils.noticeMessage(SearchActivity.this, AppUtils.getUnknownErrorString());
+                        }else{
+                            AppUtils.noticeMessage(SearchActivity.this, AppUtils.getErrorString(response));
                         }
                     }
 
@@ -221,10 +228,24 @@ public class SearchActivity extends BaseActivity {
                     public void onFailure(Call<UserList> call, Throwable t) {
                         t.printStackTrace();
 //                        AppUtils.noticeMessage(SearchActivity.this, t.getMessage());
+                        AppUtils.noticeMessage(SearchActivity.this, AppUtils.getUnknownErrorString());
                         userList.setAdapter(new CustomListAdapter(SearchActivity.this, new ArrayList<User>()));
                     }
                 });
 
+    }
+
+    public List<User> removeNullUser(List<User> users) {
+        User nullUser = null;
+        for (User u : users) {
+            if (u.getAdmin() == null) {
+                nullUser = u;
+            }
+        }
+        if (nullUser != null) {
+            users.remove(nullUser);
+        }
+        return users;
     }
 
     private void onItemSelectedHandler(AdapterView<?> adapterView, View view, int position, long id) {

@@ -21,6 +21,10 @@ public class AppUtils {
         return "※ "+error;
     }
 
+    public static String getUnknownErrorString() {
+        return "※ エラーが発生しました。";
+    }
+
     public static void noticeMessage(Context c, String msg){
         Toast.makeText(c, msg, Toast.LENGTH_LONG).show();
     }

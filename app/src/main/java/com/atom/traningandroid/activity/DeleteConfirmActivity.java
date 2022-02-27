@@ -63,15 +63,17 @@ public class DeleteConfirmActivity extends BaseActivity {
                             AppUtils.noticeMessage(DeleteConfirmActivity.this, "削除完了しました");
                             Intent intent = new Intent(DeleteConfirmActivity.this, SearchActivity.class);
                             startActivity(intent);
-                        } else {
+                        } else if(response.code()!=500){
                             AppUtils.noticeMessage(DeleteConfirmActivity.this, AppUtils.getErrorString(response));
+                        }else{
+                            AppUtils.noticeMessage(DeleteConfirmActivity.this, AppUtils.getUnknownErrorString());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<User> call, Throwable t) {
                         t.printStackTrace();
-                        AppUtils.noticeMessage(DeleteConfirmActivity.this, t.getMessage());
+                        AppUtils.noticeMessage(DeleteConfirmActivity.this,AppUtils.getUnknownErrorString());
                     }
                 });
     }

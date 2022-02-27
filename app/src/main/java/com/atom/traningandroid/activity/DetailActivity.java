@@ -1,7 +1,5 @@
 package com.atom.traningandroid.activity;
 
-import static com.atom.traningandroid.R.color.design_default_color_error;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -113,15 +111,17 @@ public class DetailActivity extends BaseActivity {
                         if(response.code()==200){
                             getByUserId();
                             AppUtils.noticeMessage(DetailActivity.this,active==1?"ユーザがロックされました":"ユーザがアクティブになりました");
-                        }else{
+                        }else if(response.code()!=500){
                             AppUtils.noticeMessage(DetailActivity.this, AppUtils.getErrorString(response));
+                        }else{
+                            AppUtils.noticeMessage(DetailActivity.this,AppUtils.getUnknownErrorString());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<User> call, Throwable t) {
                         t.printStackTrace();
-                        AppUtils.noticeMessage(DetailActivity.this,t.getMessage());
+                        AppUtils.noticeMessage(DetailActivity.this,AppUtils.getUnknownErrorString());
                     }
                 });
     }
@@ -134,15 +134,17 @@ public class DetailActivity extends BaseActivity {
                         if (response.code() == 200) {
                             user = response.body();
                             setInforOfUser();
-                        } else{
+                        } else if(response.code()!=500){
                             AppUtils.noticeMessage(DetailActivity.this, AppUtils.getErrorString(response));
+                        }else{
+                            AppUtils.noticeMessage(DetailActivity.this,AppUtils.getUnknownErrorString());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<User> call, Throwable t) {
                         t.printStackTrace();
-                        AppUtils.noticeMessage(DetailActivity.this, t.getMessage());
+                        AppUtils.noticeMessage(DetailActivity.this,AppUtils.getUnknownErrorString());
                     }
                 });
     }
@@ -155,15 +157,17 @@ public class DetailActivity extends BaseActivity {
                         if (response.code() == 200) {
                             user = response.body();
                             setInforOfUser();
-                        } else {
+                        } else if(response.code()!=500){
                             AppUtils.noticeMessage(DetailActivity.this, AppUtils.getErrorString(response));
+                        }else{
+                            AppUtils.noticeMessage(DetailActivity.this,AppUtils.getUnknownErrorString());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<User> call, Throwable t) {
                         t.printStackTrace();
-                        AppUtils.noticeMessage(DetailActivity.this, t.getMessage());
+                        AppUtils.noticeMessage(DetailActivity.this,AppUtils.getUnknownErrorString());
                     }
                 });
     }

@@ -12,8 +12,6 @@ import android.widget.Spinner;
 import com.atom.traningandroid.R;
 import com.atom.traningandroid.adapter.StatisticAdapter;
 import com.atom.traningandroid.adapter.StatisticAgeAdapter;
-import com.atom.traningandroid.constant.Constant;
-import com.atom.traningandroid.converter.StatisticConverter;
 import com.atom.traningandroid.model.Role;
 import com.atom.traningandroid.model.Statistic;
 import com.atom.traningandroid.model.StatisticList;
@@ -79,15 +77,17 @@ public class StatisticActivity extends BaseActivity {
                             } else {
                                 statisticTable.setAdapter(new StatisticAgeAdapter(StatisticActivity.this, statistics));
                             }
-                        } else {
+                        } else if(response.code()!=500){
                             AppUtils.noticeMessage(StatisticActivity.this, AppUtils.getErrorString(response));
+                        } else{
+                            AppUtils.noticeMessage(StatisticActivity.this, AppUtils.getUnknownErrorString());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<StatisticList> call, Throwable t) {
                         t.printStackTrace();
-                        AppUtils.noticeMessage(StatisticActivity.this, t.getMessage());
+                        AppUtils.noticeMessage(StatisticActivity.this, AppUtils.getUnknownErrorString());
                     }
                 });
 

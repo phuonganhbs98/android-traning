@@ -55,7 +55,7 @@ public class CustomListAdapter extends BaseAdapter {
         User u = this.listData.get(i);
         holder.name.setText(u.getFamilyName() + " " + u.getFirstName());
         holder.gender.setText(u.getGenderName()==null?"":u.getGenderName());
-        holder.role.setText((u.getAdmin()==1?"★":"")+(u.getRoleName()==null?"":u.getRoleName()));
+        holder.role.setText(u.getAdmin()==null?"":((u.getAdmin()==1?"★":"")+(u.getRoleName()==null?"":u.getRoleName())));
 
         return convertView;
     }

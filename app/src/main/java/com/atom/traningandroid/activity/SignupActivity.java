@@ -144,7 +144,7 @@ public class SignupActivity extends BaseActivity {
                         @Override
                         public void onFailure(Call<User> call, Throwable t) {
                             t.printStackTrace();
-                            errorMsg.setText(t.getMessage());
+                            errorMsg.setText(AppUtils.getUnknownErrorString());
                         }
                     });
         } else {
@@ -158,7 +158,7 @@ public class SignupActivity extends BaseActivity {
                         @Override
                         public void onFailure(Call<User> call, Throwable t) {
                             t.printStackTrace();
-                            errorMsg.setText(t.getMessage());
+                            errorMsg.setText(AppUtils.getUnknownErrorString());
                         }
                     });
         }
@@ -171,13 +171,17 @@ public class SignupActivity extends BaseActivity {
             AppUtils.noticeMessage(SignupActivity.this, (paramUser == null ? "登録" : "更新") + "完了しました");
             startActivity(intent);
         } else {
-            errorMsg.setText(AppUtils.getErrorString(response));
+            if(response.code()==500) {
+                errorMsg.setText(AppUtils.getUnknownErrorString());
+            }else{
+                errorMsg.setText(AppUtils.getErrorString(response));
+            }
         }
     }
 
     public void getRoles() {
         List<Role> roles = new ArrayList<>();
-        roles.add(new Role(null, "役職・すべて"));
+        roles.add(new Role(null, "役職"));
         RetrofitProvider.callAPI().findAllRoles(TokenUtils.getInstance().getToken())
                 .enqueue(new Callback<RoleList>() {
                     @Override
@@ -205,15 +209,17 @@ public class SignupActivity extends BaseActivity {
 
                                 }
                             });
-                        } else {
+                        } else if(response.code()!=500){
                             AppUtils.noticeMessage(SignupActivity.this, AppUtils.getErrorString(response));
+                        } else {
+                            AppUtils.noticeMessage(SignupActivity.this, AppUtils.getUnknownErrorString());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<RoleList> call, Throwable t) {
                         t.printStackTrace();
-                        AppUtils.noticeMessage(SignupActivity.this, t.getMessage());
+                        AppUtils.noticeMessage(SignupActivity.this, AppUtils.getUnknownErrorString());
                     }
                 });
     }
@@ -250,15 +256,17 @@ public class SignupActivity extends BaseActivity {
 
                                 }
                             });
-                        } else {
+                        } else if(response.code()!=500){
                             AppUtils.noticeMessage(SignupActivity.this, AppUtils.getErrorString(response));
+                        }else {
+                            AppUtils.noticeMessage(SignupActivity.this, AppUtils.getUnknownErrorString());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<GenderList> call, Throwable t) {
                         t.printStackTrace();
-                        AppUtils.noticeMessage(SignupActivity.this, t.getMessage());
+                        AppUtils.noticeMessage(SignupActivity.this, AppUtils.getUnknownErrorString());
                     }
                 });
 
