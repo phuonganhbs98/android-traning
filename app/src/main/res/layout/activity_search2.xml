@@ -5,7 +5,7 @@
     android:id="@+id/role"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.SearchActivity">
+    tools:context=".activity.Search3Activity">
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -66,10 +66,11 @@
             android:textAlignment="textStart"
             tools:spinnerMode="dropdown" />
 
-        <ListView
-            android:id="@+id/userList"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rec_user_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_marginBottom="50dp" />
 
     </LinearLayout>
 

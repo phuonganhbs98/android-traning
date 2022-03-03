@@ -56,6 +56,8 @@ public class SignupActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+        super.setLoad();
+        super.setDetector(this, this);
         checkLogin();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -289,4 +291,5 @@ public class SignupActivity extends BaseActivity {
         }
         return null;
     }
+
 }

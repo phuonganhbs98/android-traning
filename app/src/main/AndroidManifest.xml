@@ -35,6 +35,10 @@
             android:resource="@xml/network_security_config" />
 
         <activity
+            android:name=".activity.Search3Activity"
+            android:label="@string/title_search"
+            android:exported="false" />
+        <activity
             android:name=".activity.SearchActivity"
             android:label="@string/title_search"
             android:exported="false" />

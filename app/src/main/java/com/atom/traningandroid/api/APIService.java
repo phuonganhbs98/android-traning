@@ -20,6 +20,7 @@ import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface APIService {
     /**
@@ -30,7 +31,8 @@ public interface APIService {
 
     @POST(Constant.PATH + "/users/search")
     Call<UserList> search(@Header("Authorization") String token,
-                          @Body User user);
+                          @Body User user,
+                          @Query("page") Integer page);
 
     @GET(Constant.PATH + "/users/{userId}")
     Call<User> getUserByUserId(@Header("Authorization") String token,

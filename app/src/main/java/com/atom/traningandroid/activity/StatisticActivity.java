@@ -38,6 +38,8 @@ public class StatisticActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statistic);
+        super.setLoad();
+        super.setDetector(this, this);
         checkLogin();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -121,5 +123,11 @@ public class StatisticActivity extends BaseActivity {
         Role r = (Role) adapter.getItem(position);
         this.type = r.getAuthorityId();
         this.statistic();
+    }
+
+    @Override
+    public void swipeDown() {
+        super.swipeDown();
+        statistic();
     }
 }

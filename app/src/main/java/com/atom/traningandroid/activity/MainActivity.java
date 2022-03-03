@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         if(TokenUtils.getInstance().getToken()!= null){
-            Intent intent = new Intent(this, SearchActivity.class);
+            Intent intent = new Intent(this, Search3Activity.class);
             startActivity(intent);
         }
     }

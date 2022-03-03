@@ -2,9 +2,12 @@ package com.atom.traningandroid.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.atom.traningandroid.R;
 import com.atom.traningandroid.model.User;
@@ -16,7 +19,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class DetailActivity extends BaseActivity {
+public class DetailActivity extends BaseActivity implements SimpleGestureFilter.SimpleGestureListener {
 
     private final String LOG_TAG = "Detail Activity";
     private TextView userId;
@@ -30,13 +33,14 @@ public class DetailActivity extends BaseActivity {
     private Button lock;
     private User user;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         checkLogin();
-
+// Detect touched area
+        super.setDetector(this, this);
+        super.setLoad();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent intent = getIntent();
         this.user = (User) intent.getSerializableExtra("user");
@@ -53,7 +57,7 @@ public class DetailActivity extends BaseActivity {
 
         if (this.user == null) {
             this.getProfile();
-        }else{
+        } else {
             this.getByUserId();
         }
 
@@ -84,44 +88,44 @@ public class DetailActivity extends BaseActivity {
 
     }
 
-    public void setInforOfUser(){
+    public void setInforOfUser() {
         userId.setText(user.getUserId());
         name.setText(user.getFamilyName() + " " + user.getFirstName());
         gender.setText(user.getGenderName());
         age.setText(user.getAge() == null ? "" : user.getAge().toString());
-        role.setText((user.getAdmin()==1?"★":"")+(user.getRoleName()==null?"":user.getRoleName()));
-        System.out.println(">>>>edit ...."+user.toString());
-        if(user.getEnabled()!=null && user.getEnabled()==0){
+        role.setText((user.getAdmin() == 1 ? "★" : "") + (user.getRoleName() == null ? "" : user.getRoleName()));
+        System.out.println(">>>>edit ...." + user.toString());
+        if (user.getEnabled() != null && user.getEnabled() == 0) {
             state.setText("ロック");
             state.setTextColor(getResources().getColor(R.color.red));
-        }else {
+        } else {
             state.setText("アクティブ");
             state.setTextColor(getResources().getColor(R.color.green));
         }
     }
 
-    public void lockUser(){
+    public void lockUser() {
         Integer active = this.user.getEnabled();
-        this.user.setEnabled(this.user.getEnabled()==1?0:1);
+        this.user.setEnabled(this.user.getEnabled() == 1 ? 0 : 1);
         System.out.println("......" + this.user.getEnabled());
         RetrofitProvider.callAPI().updateUser(TokenUtils.getInstance().getToken(), this.user)
                 .enqueue(new Callback<User>() {
                     @Override
                     public void onResponse(Call<User> call, Response<User> response) {
-                        if(response.code()==200){
+                        if (response.code() == 200) {
                             getByUserId();
-                            AppUtils.noticeMessage(DetailActivity.this,active==1?"ユーザがロックされました":"ユーザがアクティブになりました");
-                        }else if(response.code()!=500){
+                            AppUtils.noticeMessage(DetailActivity.this, active == 1 ? "ユーザがロックされました" : "ユーザがアクティブになりました");
+                        } else if (response.code() != 500) {
                             AppUtils.noticeMessage(DetailActivity.this, AppUtils.getErrorString(response));
-                        }else{
-                            AppUtils.noticeMessage(DetailActivity.this,AppUtils.getUnknownErrorString());
+                        } else {
+                            AppUtils.noticeMessage(DetailActivity.this, AppUtils.getUnknownErrorString());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<User> call, Throwable t) {
                         t.printStackTrace();
-                        AppUtils.noticeMessage(DetailActivity.this,AppUtils.getUnknownErrorString());
+                        AppUtils.noticeMessage(DetailActivity.this, AppUtils.getUnknownErrorString());
                     }
                 });
     }
@@ -134,22 +138,22 @@ public class DetailActivity extends BaseActivity {
                         if (response.code() == 200) {
                             user = response.body();
                             setInforOfUser();
-                        } else if(response.code()!=500){
+                        } else if (response.code() != 500) {
                             AppUtils.noticeMessage(DetailActivity.this, AppUtils.getErrorString(response));
-                        }else{
-                            AppUtils.noticeMessage(DetailActivity.this,AppUtils.getUnknownErrorString());
+                        } else {
+                            AppUtils.noticeMessage(DetailActivity.this, AppUtils.getUnknownErrorString());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<User> call, Throwable t) {
                         t.printStackTrace();
-                        AppUtils.noticeMessage(DetailActivity.this,AppUtils.getUnknownErrorString());
+                        AppUtils.noticeMessage(DetailActivity.this, AppUtils.getUnknownErrorString());
                     }
                 });
     }
 
-    public void getByUserId(){
+    public void getByUserId() {
         RetrofitProvider.callAPI().getUserByUserId(TokenUtils.getInstance().getToken(), this.user.getUserId())
                 .enqueue(new Callback<User>() {
                     @Override
@@ -157,18 +161,24 @@ public class DetailActivity extends BaseActivity {
                         if (response.code() == 200) {
                             user = response.body();
                             setInforOfUser();
-                        } else if(response.code()!=500){
+                        } else if (response.code() != 500) {
                             AppUtils.noticeMessage(DetailActivity.this, AppUtils.getErrorString(response));
-                        }else{
-                            AppUtils.noticeMessage(DetailActivity.this,AppUtils.getUnknownErrorString());
+                        } else {
+                            AppUtils.noticeMessage(DetailActivity.this, AppUtils.getUnknownErrorString());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<User> call, Throwable t) {
                         t.printStackTrace();
-                        AppUtils.noticeMessage(DetailActivity.this,AppUtils.getUnknownErrorString());
+                        AppUtils.noticeMessage(DetailActivity.this, AppUtils.getUnknownErrorString());
                     }
                 });
+    }
+
+    @Override
+    public void swipeDown() {
+        super.swipeDown();
+        this.getByUserId();
     }
 }

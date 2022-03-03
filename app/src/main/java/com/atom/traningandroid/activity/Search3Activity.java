@@ -2,7 +2,6 @@ package com.atom.traningandroid.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,16 +9,13 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.Spinner;
 
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import com.atom.traningandroid.adapter.CustomListAdapter;
 import com.atom.traningandroid.R;
-import com.atom.traningandroid.adapter.ListUserAdapter;
 import com.atom.traningandroid.model.Role;
 import com.atom.traningandroid.model.RoleList;
 import com.atom.traningandroid.model.User;
@@ -36,85 +32,31 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SearchActivity extends BaseActivity {
+public class Search3Activity extends BaseActivity {
 
     private final String LOG_TAG = "Search Activity";
-    private RecyclerView userList;
-    private ListUserAdapter userAdapter;
-    private List<User> users;
-    private boolean isLoading;
-    private boolean isLastPage;
-    //    private int totalPage = 2;
-    private int currentPage = 1;
-
+    private ListView userList;
     private Spinner roleSpinner;
     private SearchView nameSearch;
     private FloatingActionButton menuBtn;
 
     private Role searchRole = new Role();
 
-    private void loadNextPage() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!isLastPage) {
-                    currentPage += 1;
-                    search();
-                }
-                isLoading = false;
-            }
-        }, 1500);
-
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search2);
+        setContentView(R.layout.activity_search);
         super.setDetector(this, this);
         super.setLoad();
         checkLogin();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        this.userList = (RecyclerView) findViewById(R.id.rec_user_list);
+        this.userList = (ListView) findViewById(R.id.userList);
         this.roleSpinner = (Spinner) findViewById(R.id.roleSpinner);
         this.nameSearch = (SearchView) findViewById(R.id.searchByName);
         this.menuBtn = (FloatingActionButton) findViewById(R.id.menu1);
         this.getRoles();
-
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        userList.setLayoutManager(linearLayoutManager);
-        userAdapter = new ListUserAdapter();
-        userList.setAdapter(userAdapter);
-        RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-        userList.addItemDecoration(itemDecoration);
-
-        userList.addOnScrollListener(new PaginationScrollListener(linearLayoutManager) {
-            @Override
-            public void loadMoreItem() {
-                isLoading = true;
-                loadNextPage();
-            }
-
-            @Override
-            public boolean isLoading() {
-                return isLoading;
-            }
-
-            @Override
-            public boolean isLastPage() {
-                return isLastPage;
-            }
-        });
-
-        userAdapter.setItemClickListener(new ListUserAdapter.ItemClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                User u = users.get(position);
-                userClicked(view, u);
-            }
-        });
-
+        this.search();
         this.nameSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -123,7 +65,7 @@ public class SearchActivity extends BaseActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                getFirstPageData();
+                search();
                 return true;
             }
         });
@@ -138,14 +80,9 @@ public class SearchActivity extends BaseActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        getFirstPageData();
-    }
-
-    @Override
     public void onBackPressed() {
         String preAct = getIntent().getStringExtra("activity");
+        System.out.println("preact: " + preAct);
         if (preAct != null && preAct.equals("login") && TokenUtils.getInstance().getToken() != null) {
             finishAffinity();
         } else {
@@ -171,7 +108,7 @@ public class SearchActivity extends BaseActivity {
         popup.show();
     }
 
-    public void userClicked(View v, User u) {
+    private void userClicked(View v, User u) {
         PopupMenu popup = new PopupMenu(this, v);
         popup.inflate(R.menu.user_action_menu);
 
@@ -193,24 +130,24 @@ public class SearchActivity extends BaseActivity {
         Intent intent = null;
         switch (item.getItemId()) {
             case R.id.signup:
-                intent = new Intent(SearchActivity.this, SignupActivity.class);
+                intent = new Intent(Search3Activity.this, SignupActivity.class);
                 break;
             case R.id.statistic:
-                intent = new Intent(SearchActivity.this, StatisticActivity.class);
+                intent = new Intent(Search3Activity.this, StatisticActivity.class);
                 break;
             case R.id.profile:
-                intent = new Intent(SearchActivity.this, DetailActivity.class);
+                intent = new Intent(Search3Activity.this, DetailActivity.class);
                 break;
             case R.id.edit:
-                intent = new Intent(SearchActivity.this, SignupActivity.class);
+                intent = new Intent(Search3Activity.this, SignupActivity.class);
                 intent.putExtra("user", u);
                 break;
             case R.id.delete:
-                intent = new Intent(SearchActivity.this, DeleteConfirmActivity.class);
+                intent = new Intent(Search3Activity.this, DeleteConfirmActivity.class);
                 intent.putExtra("user", u);
                 break;
             default: //detail
-                intent = new Intent(SearchActivity.this, DetailActivity.class);
+                intent = new Intent(Search3Activity.this, DetailActivity.class);
                 intent.putExtra("user", u);
                 break;
         }
@@ -227,7 +164,7 @@ public class SearchActivity extends BaseActivity {
                     public void onResponse(Call<RoleList> call, Response<RoleList> response) {
                         if (response.code() == 200) {
                             roles.addAll(response.body().getRoles());
-                            ArrayAdapter<Role> adapter = new ArrayAdapter<Role>(SearchActivity.this,
+                            ArrayAdapter<Role> adapter = new ArrayAdapter<Role>(Search3Activity.this,
                                     android.R.layout.simple_spinner_item,
                                     roles);
                             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -243,79 +180,60 @@ public class SearchActivity extends BaseActivity {
 
                                 }
                             });
-                        } else if (response.code() != 500) {
-                            AppUtils.noticeMessage(SearchActivity.this, AppUtils.getErrorString(response));
-                        } else {
-                            AppUtils.noticeMessage(SearchActivity.this, AppUtils.getUnknownErrorString());
+                        } else if(response.code()!=500){
+                            AppUtils.noticeMessage(Search3Activity.this, AppUtils.getErrorString(response));
+                        }else {
+                            AppUtils.noticeMessage(Search3Activity.this, AppUtils.getUnknownErrorString());
                         }
                     }
 
                     @Override
                     public void onFailure(Call<RoleList> call, Throwable t) {
                         t.printStackTrace();
-                        AppUtils.noticeMessage(SearchActivity.this, AppUtils.getUnknownErrorString());
+                        AppUtils.noticeMessage(Search3Activity.this, AppUtils.getUnknownErrorString());
                     }
                 });
     }
 
     public void search() {
         User u = new User(this.nameSearch.getQuery().toString(), this.searchRole.getAuthorityId());
-        RetrofitProvider.callAPI().search(TokenUtils.getInstance().getToken(), u, currentPage)
+        RetrofitProvider.callAPI().search(TokenUtils.getInstance().getToken(), u, 1)
                 .enqueue(new Callback<UserList>() {
                     @Override
-                    public void onResponse(Call<UserList> call, Response<UserList> response) {
-                        System.out.println("url-search: " + call.request().toString());
+                    public void onResponse(Call<UserList> call, retrofit2.Response<UserList> response) {
                         if (response.code() == 200) {
-                            List<User> list = null;
                             if (response.body() == null) {
-                                System.out.println("Khong co data nao");
-                                isLastPage = true;
-                            } else {
-                                list = response.body().getUsers();
-                                list = removeNullUser(list);
-                                if(list.size()<10){
-                                    isLastPage = true;
-                                }
+                                userList.setAdapter(new CustomListAdapter(Search3Activity.this, new ArrayList<User>()));
+                                return;
                             }
-                            updateData(list);
-                        } else if (response.code() == 500) {
-                            AppUtils.noticeMessage(SearchActivity.this, AppUtils.getUnknownErrorString());
-                        } else {
-                            AppUtils.noticeMessage(SearchActivity.this, AppUtils.getErrorString(response));
+                            List<User> users = response.body().getUsers();
+                            users = removeNullUser(users);
+                            userList.setAdapter(new CustomListAdapter(Search3Activity.this, users));
+                            userList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                                @Override
+                                public void onItemClick(AdapterView<?> a, View v, int position, long id) {
+                                    Object o = userList.getItemAtPosition(position);
+                                    User u = (User) o;
+                                    userClicked(v, u);
+                                }
+                            });
+                        }else if(response.code()==500){
+                            AppUtils.noticeMessage(Search3Activity.this, AppUtils.getUnknownErrorString());
+                        }else{
+                            AppUtils.noticeMessage(Search3Activity.this, AppUtils.getErrorString(response));
                         }
                     }
 
                     @Override
                     public void onFailure(Call<UserList> call, Throwable t) {
                         t.printStackTrace();
-                        AppUtils.noticeMessage(SearchActivity.this, AppUtils.getUnknownErrorString());
-//                        userList.setAdapter(new CustomListAdapter(Search2Activity.this, new ArrayList<User>()));
+//                        AppUtils.noticeMessage(SearchActivity.this, t.getMessage());
+                        AppUtils.noticeMessage(Search3Activity.this, AppUtils.getUnknownErrorString());
+                        userList.setAdapter(new CustomListAdapter(Search3Activity.this, new ArrayList<User>()));
                     }
                 });
 
-    }
-
-    public void updateData(List<User> list) {
-        if (list != null) {
-            if (currentPage == 1) {
-                users = list;
-                userAdapter.setData(users);
-                userAdapter.addFooterLoading();
-            } else {
-                userAdapter.removeFooterLoading();
-                users.addAll(list);
-                userAdapter.setData(users);
-                userAdapter.addFooterLoading();
-            }
-            userAdapter.notifyDataSetChanged();
-        }else if(currentPage==1){
-            users = new ArrayList<>();
-            userAdapter.setData(users);
-            userAdapter.addFooterLoading();
-        }
-        if (isLastPage) {
-            userAdapter.removeFooterLoading();
-        }
     }
 
     public List<User> removeNullUser(List<User> users) {
@@ -334,20 +252,13 @@ public class SearchActivity extends BaseActivity {
     private void onItemSelectedHandler(AdapterView<?> adapterView, View view, int position, long id) {
         Adapter adapter = adapterView.getAdapter();
         this.searchRole = (Role) adapter.getItem(position);
-        this.getFirstPageData();
+        this.search();
     }
 
     @Override
     public void swipeDown() {
         super.swipeDown();
-        getFirstPageData();
+        search();
     }
-
-    public void getFirstPageData() {
-        currentPage = 1;
-        isLastPage = false;
-        this.search();
-    }
-
 
 }

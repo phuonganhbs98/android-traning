@@ -30,6 +30,8 @@ public class DeleteConfirmActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_delete_confirm);
+        super.setDetector(this, this);
+        super.setLoad();
         checkLogin();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -77,4 +79,5 @@ public class DeleteConfirmActivity extends BaseActivity {
                     }
                 });
     }
+
 }
